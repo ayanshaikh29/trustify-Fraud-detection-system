@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trustify - Fraud Detection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0f0f0f;
+      overflow: hidden;
+      position: relative;
+      height: 100vh;
+    }
+
+    canvas#renderGrid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+    }
+
+    .hero {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fullscreen Canvas -->
+  <canvas id="renderGrid"></canvas>
+
+  <!-- Hero Text -->
+  <div class="hero">
+    <h1>Trustify</h1>
+    <p>AI-Powered Fraud Detection System</p>
+  </div>
+
+  <!-- JS Animation -->
+  <script>
+    const canvas = document.getElementById("renderGrid");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    const spacing = 50;
+    const radius = 2;
+
+    function drawGrid(mouseX, mouseY) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let x = 0; x < canvas.width; x += spacing) {
+        for (let y = 0; y < canvas.height; y += spacing) {
+          const dx = x - mouseX;
+          const dy = y - mouseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          const maxDist = 200;
+          const glow = Math.max(0, 1 - dist / maxDist);
+          const color = `rgba(0, 255, 255, ${glow})`;
+
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+        }
+      }
+    }
+
+    let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+
+    canvas.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    function animate() {
+      drawGrid(mouse.x, mouse.y);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
