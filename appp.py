@@ -27,6 +27,7 @@ init_db()
 def home():
     return render_template('home.html')
 
+
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
     result = None
