@@ -1,0 +1,161 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction History</title>
+</head>
+<body>
+    <h2>Prediction History</h2>
+    <p><a href="/">← Back to Prediction</a></p>
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Amount</th>
+            <th>Time</th>
+            <th>Result</th>
+        </tr>
+        {% for row in history %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediction History - Trustify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f2027;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 999;
+            backdrop-filter: blur(5px);
+            animation: slideDown 1s ease;
+            box-sizing: border-box;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+        }
+
+        .navbar a:hover {
+            color: #00c6ff;
+        }
+
+        .container {
+            margin-top: 100px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #00c6ff;
+        }
+
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            backdrop-filter: blur(3px);
+        }
+
+        th, td {
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #8fe6ff;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        a.back-link {
+            display: inline-block;
+            margin: 20px 0;
+            color: #00c6ff;
+            text-decoration: none;
+        }
+
+        a.back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <h2 style="margin:0; color:#00c6ff;">Trustify</h2>
+    <div>
+        <a href="/">Home</a>
+        <a href="/predict">Predict</a>
+        <a href="/history">History</a>
+        <a href="/about">About</a>
+    
+    </div>
+</div>
+
+<div class="container">
+    <h2>Prediction History</h2>
+    <a class="back-link" href="/">← Back to Prediction</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Amount</th>
+                <th>Time</th>
+                <th>Result</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in records %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
