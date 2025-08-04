@@ -73,7 +73,8 @@ def history():
             c = conn.cursor()
             c.execute("SELECT amount, time, result, timestamp FROM predictions ORDER BY timestamp DESC")
             records = c.fetchall()
-    except:
+    except Exception as e:
+        print("DB Error:", e)
         records = []
     return render_template('history.html', records=records)
 
@@ -84,3 +85,4 @@ def add_header(response):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
