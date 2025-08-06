@@ -2,7 +2,6 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from imblearn.over_sampling import SMOTE
 import joblib
 import os
 
@@ -21,21 +20,17 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state=42, stratify=y
 )
 
-# ===== 5. Handle Class Imbalance =====
-sm = SMOTE(random_state=42)
-X_train_res, y_train_res = sm.fit_resample(X_train, y_train)
-
-# ===== 6. Train or Load Model =====
+# ===== 5. Train or Load Model =====
 MODEL_PATH = 'fraud_model.pkl'
 
 if os.path.exists(MODEL_PATH):
     model = joblib.load(MODEL_PATH)
 else:
     model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train_res, y_train_res)
+    model.fit(X_train, y_train)
     joblib.dump(model, MODEL_PATH)
 
-# ===== 7. Prediction Function =====
+# ===== 6. Prediction Function =====
 def detect_fraud(transaction_amount, transaction_hour):
     """
     Predict fraud from transaction amount and hour.
@@ -49,7 +44,7 @@ def detect_fraud(transaction_amount, transaction_hour):
     
     return "🚨 Fraud Detected!" if prediction == 1 else "✅ Transaction is Legitimate"
 
-# ===== 8. Evaluation & Examples =====
+# ===== 7. Evaluation & Examples =====
 if __name__ == '__main__':
     print("✅ Model ready. Evaluating...\n")
     
