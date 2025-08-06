@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trustify - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #00c6ff;
+      --secondary: #0072ff;
+      --success: #4dff88;
+      --danger: #ff4d4d;
+      --bg: #0f2027;
+      --hero-grad1: #141e30;
+      --hero-grad2: #243b55;
+      --hero-grad3: #274046;
+      --text-light: #e6f4fa;
+      --text-muted: #888;
+    }
+
+    /* Reset & base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0; padding-top: 80px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+      transform: translateY(-2px);
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+    }
+    .navbar h2 {
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    .navbar nav {
+      display: flex;
+      gap: 20px;
+    }
+    .navbar nav a {
+      font-weight: 600;
+      user-select: none;
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      height: 180px;
+      max-width: 960px;
+      margin: 20px auto;
+      border-radius: 14px;
+      background: linear-gradient(110deg, var(--hero-grad2), var(--hero-grad1), var(--hero-grad3));
+      background-size: 180% 180%;
+      animation: heroBGMove 10s ease-in-out infinite alternate;
+      box-shadow: 0 0 36px var(--primary);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 1rem 2rem;
+    }
+    @keyframes heroBGMove {
+      0% {
+        background-position: 0% 60%;
+      }
+      100% {
+        background-position: 100% 40%;
+      }
+    }
+    .hero h1 {
+      font-size: 2.4rem;
+      margin: 0 0 0.75rem;
+      filter: drop-shadow(0 0 16px #00c6ff88);
+      animation: fadeInUp 1s ease forwards;
+      opacity: 0;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      max-width: 600px;
+      opacity: 0.85;
+      animation: fadeInUp 1.4s ease forwards;
+      animation-delay: 0.2s;
+      margin: 0;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Container with padding */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto 40px auto;
+      padding: 0 20px;
+    }
+
+    /* Chart row */
+    .charts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      margin-top: 40px;
+      animation: fadeInUp 1s ease forwards;
+      opacity: 0;
+      animation-delay: 0.5s;
+    }
+    .chart-box {
+      flex: 1 1 320px;
+      background: rgba(255 255 255 / 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 0 24px rgba(0 198 255 / 0.2);
+      color: var(--primary);
+      user-select: none;
+      text-align: center;
+    }
+    .chart-box h3 {
+      margin: 0 0 18px 0;
+      font-weight: 700;
+      text-shadow: 0 0 8px var(--primary);
+    }
+    canvas {
+      max-width: 100%;
+      height: auto !important;
+      background: rgba(255 255 255 / 0.03);
+      border-radius: 14px;
+      padding: 12px;
+      backdrop-filter: blur(6px);
+      box-shadow: inset 0 0 10px rgba(255 255 255 / 0.15);
+    }
+
+    /* Table Section */
+    .table-section {
+      background: rgba(255 255 255 / 0.06);
+      border-radius: 18px;
+      padding: 24px 30px;
+      box-shadow:
+        0 0 28px 2px rgba(0 198 255 / 0.3),
+        0 0 42px 6px rgba(0 198 255 / 0.15);
+      margin: 40px auto 60px auto;
+      max-width: 900px;
+      animation: fadeInUp 1.2s ease forwards;
+      opacity: 0;
+      user-select: none;
+    }
+    .table-section h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: 0 0 7px var(--primary);
+      letter-spacing: 1.2px;
+    }
+    table {
+      width: 100%;
+      color: #c2e8ff;
+      border-collapse: collapse;
+      font-size: 1rem;
+      table-layout: fixed;
+      background: transparent;
+    }
+    thead th {
+      background: rgba(0 198 255 / 0.15);
+      color: #8fdbff;
+      font-weight: 700;
+      padding: 12px 10px;
+      letter-spacing: 1.1px;
+    }
+    tbody td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(0 198 255 / 0.18);
+      text-align: center;
+      word-wrap: break-word;
+    }
+    tbody tr:hover td {
+      background: rgba(0 198 255 / 0.26);
+      cursor: default;
+    }
+    .result-fraud {
+      color: var(--danger);
+      font-weight: 700;
+      letter-spacing: 1.1px;
+    }
+    .result-legit {
+      color: var(--success);
+      font-weight: 700;
+      letter-spacing: 1.1px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .charts-row {
+        flex-direction: column;
+        align-items: center;
+      }
+      .chart-box {
+        width: 95%;
+        max-width: 460px;
+      }
+      .table-section {
+        width: 95%;
+      }
+    }
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <h2>Trustify</h2>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/predict">Predict</a>
+      <a href="/history">History</a>
+      <a href="/about">About</a>
+      <a href="/login">Login</a>
+    </nav>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg-blur blob1"></div>
+    <div class="hero-bg-blur blob2"></div>
+    <div class="hero-bg-blur blob3"></div>
+    <div class="hero-content">
+      <h1>📊 Dashboard Overview</h1>
+      <p>View your prediction analytics and recent results below.</p>
+    </div>
+  </section>
+
+  <!-- Main container -->
+  <div class="container">
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-box">
+        <h3>Fraud vs Legitimate</h3>
+        <canvas id="pieChart" width="320" height="320"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>Frauds per Hour</h3>
+        <canvas id="barChart" width="320" height="320"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>Daily Usage</h3>
+        <canvas id="lineChart" width="600" height="320"></canvas>
+      </div>
+    </div>
+
+    <!-- Table with history -->
+    <section class="table-section">
+      <h3>Last 10 Predictions</h3>
+      <table id="predTable">
+        <thead>
+          <tr>
+            <th>Amount</th>
+            <th>Hour</th>
+            <th>Result</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+  </div>
+
+  <script>
+    // Load Pie chart
+    fetch('/api/pie').then(res => res.json()).then(data => {
+      new Chart(document.getElementById('pieChart'), {
+        type: 'pie',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            data: data.values,
+            backgroundColor: ['#00c6ff', '#ff4d4d']
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { labels: {color: '#a1ffff', font: {family: 'Segoe UI', size: 16}}, position: 'bottom' },
+            tooltip: { backgroundColor: '#054848', borderColor: '#11e0af', borderWidth: 1.5, titleColor: '#b0fff0', bodyColor: '#d0fff5' }
+          },
+          animation: { animateRotate: true, animateScale: true, duration: 1600, easing: 'easeOutElastic' }
+        }
+      });
+    });
+
+    // Load Bar chart
+    fetch('/api/bar').then(res => res.json()).then(data => {
+      new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+          labels: data.hours.map(h => h + ':00'),
+          datasets: [{
+            label: 'Frauds',
+            data: data.fraud_counts,
+            backgroundColor: 'rgba(255, 77, 77, 0.7)',
+            borderColor: '#ff4d4d',
+            borderRadius: 8,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {display: false},
+            tooltip: {backgroundColor: '#330101', titleColor: '#ff4d4d', bodyColor: '#ffbbbb', borderColor: '#ff4d4d', borderWidth: 1.4}
+          },
+          scales: {
+            x: { title: {display:true,text:'Hour (0-23)', color:'#7effff', font:{weight:'700'}}, grid:{display:false}, ticks:{color:'#aaffff', font:{weight:'600'}} },
+            y: { beginAtZero:true, ticks:{color:'#ff7f7f', font:{weight:'600'}}, title:{display:true,text:'Fraud Cases',color:'#ff4d4d',font:{weight:'700'}}, grid:{color:'rgba(255,0,0,0.1)'} }
+          },
+          animation: { duration: 1800, easing: 'easeOutQuart' }
+        }
+      });
+    });
+
+    // Load Line chart (dummy data example)
+    fetch('/api/line').then(res => res.json()).then(data => {
+      new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Daily Usage',
+            data: data.values,
+            fill: false,
+            borderColor: '#4dff88',
+            tension: 0.35
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#a1fff0', font: { family: 'Segoe UI' } } } },
+          scales: {
+            x: { ticks: { color: '#8ae2a2' } },
+            y: { ticks: { color: '#8ae2a2' }, grid: { color: 'rgba(100,255,100,0.1)' } }
+          }
+        }
+      });
+    });
+
+    // Load table data
+    fetch('/api/table').then(res => res.json()).then(data => {
+      const tbody = document.querySelector('#predTable tbody');
+      tbody.innerHTML = '';
+      data.records.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach((cell, i) => {
+          const td = document.createElement('td');
+          if (i === 2) { // Result cell
+            td.textContent = cell === 'Fraud' ? '🚨 Fraud' : '✅ Legitimate';
+            td.classList.add(cell === 'Fraud' ? 'result-fraud' : 'result-legit');
+          } else if (i === 0) { // Amount formatting
+            td.textContent = '₹' + parseFloat(cell).toLocaleString(undefined, { minimumFractionDigits: 2 });
+            td.style.fontFamily = 'monospace';
+          } else if (i === 1) {
+            td.textContent = cell + ':00';
+          } else {
+            td.textContent = cell;
+          }
+          tr.appendChild(td);
+        });
+        tr.style.opacity = 0;
+        tbody.appendChild(tr);
+      });
+      Array.from(tbody.children).forEach((row, idx) => {
+        setTimeout(() => {
+          row.style.transition = 'opacity 0.7s ease';
+          row.style.opacity = 1;
+        }, 100 + idx * 80);
+      });
+    });
+  </script>
+<div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.4); color: #aaa;">
+    © 2025 Trustify | Developed by Team Trustify
+  </div>
+</body>
+</html>
