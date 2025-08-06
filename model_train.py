@@ -2,50 +2,66 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from imblearn.over_sampling import SMOTE
 import joblib
+import os
+
+# ===== Model Training and Saving =====
 
 # 1. Load dataset
 df = pd.read_csv('creditcard_250.csv')
 
-# 2. Preprocess: Add 'Hour' feature by converting 'Time' (seconds) to hour of day
+# 2. Feature Engineering: extract hour of day
 df['Hour'] = (df['Time'] % 86400) / 3600
 
-# 3. Define features and target
+# 3. Feature selection & target
 X = df[['Amount', 'Hour']]
-y = df['Class']
+y = df['Class']  # 1 = Fraud, 0 = Legitimate
 
-# 4. Split into train/test with stratified class balance
+# 4. Split to train/test
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state=42, stratify=y
 )
 
-# 5. Train model with class balancing
-model = RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced')
-model.fit(X_train, y_train)
+# 5. Fixing Class Imbalance using SMOTE
+sm = SMOTE(random_state=42)
+X_train_res, y_train_res = sm.fit_resample(X_train, y_train)
 
-# 6. Evaluate
-y_pred = model.predict(X_test)
-print("\n✅ Accuracy:", accuracy_score(y_test, y_pred))
-print("\n📊 Classification Report:\n", classification_report(y_test, y_pred))
-print("📌 Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+# 6. Train model or load if exists
+MODEL_PATH = 'fraud_model.pkl'
+if os.path.exists(MODEL_PATH):
+    model = joblib.load(MODEL_PATH)
+else:
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X_train_res, y_train_res)
+    joblib.dump(model, MODEL_PATH)
+    model = joblib.load(MODEL_PATH)
 
-# 7. Save model
-joblib.dump(model, 'fraud_model.pkl')
-print("\n✅ Model saved as fraud_model.pkl")
+# ===== Prediction Function for App =====
 
-# 8. Load model once for app use
-model = joblib.load('fraud_model.pkl')
-
-# 9. Predict function for Flask
 def detect_fraud(transaction_amount, transaction_hour):
     """
-    Predict fraud from amount and hour.
-    Returns a formatted result string.
+    Predict fraud from transaction amount and hour.
+    Returns: "Fraud", "Legitimate", or "Invalid"
     """
+    # Input validation
     if transaction_amount <= 0 or not (0 <= transaction_hour <= 24):
-        return "❌ Invalid input values."
-    
+        return "Invalid"
     input_df = pd.DataFrame([[transaction_amount, transaction_hour]], columns=['Amount', 'Hour'])
-    prediction = model.predict(input_df)[0]
-    
-    return "🚨 Fraud Detected!" if prediction == 1 else "✅ Transaction is Legitimate."
+    pred = model.predict(input_df)[0]
+    return "🚨 Fraud Detected!" if pred == 1 else "✅ Transaction is Legitimate"
+
+# ===== Evaluation and Examples =====
+
+if __name__ == '__main__':
+    print("✅ Model loaded. Evaluating on test set...")
+    y_test_pred = model.predict(X_test)
+
+    print(f"\n🧠 Accuracy: {accuracy_score(y_test, y_test_pred):.4f}")
+    print("\n📊 Classification Report:\n", classification_report(y_test, y_test_pred))
+    print("📌 Confusion Matrix:\n", confusion_matrix(y_test, y_test_pred))
+
+    # 🔎 Example Predictions
+    print("\nExample 1: ₹100 at 2 PM ->", detect_fraud(100, 14))     # Likely Legitimate
+    print("Example 2: ₹600 at 3 AM ->", detect_fraud(600, 3))       # Likely Fraud
+    print("Example 3: ₹1000 at 11 PM ->", detect_fraud(1000, 23))   # Likely Fraud
