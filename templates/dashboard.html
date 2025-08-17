@@ -264,9 +264,6 @@
 
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-bg-blur blob1"></div>
-    <div class="hero-bg-blur blob2"></div>
-    <div class="hero-bg-blur blob3"></div>
     <div class="hero-content">
       <h1>📊 Dashboard Overview</h1>
       <p>View your prediction analytics and recent results below.</p>
@@ -311,7 +308,7 @@
   </div>
 
   <script>
-    // Load Pie chart
+    // Pie chart: Fraud vs Legitimate
     fetch('/api/pie').then(res => res.json()).then(data => {
       new Chart(document.getElementById('pieChart'), {
         type: 'pie',
@@ -332,7 +329,7 @@
       });
     });
 
-    // Load Bar chart
+    // Bar chart: Frauds per hour
     fetch('/api/bar').then(res => res.json()).then(data => {
       new Chart(document.getElementById('barChart'), {
         type: 'bar',
@@ -354,15 +351,24 @@
             tooltip: {backgroundColor: '#330101', titleColor: '#ff4d4d', bodyColor: '#ffbbbb', borderColor: '#ff4d4d', borderWidth: 1.4}
           },
           scales: {
-            x: { title: {display:true,text:'Hour (0-23)', color:'#7effff', font:{weight:'700'}}, grid:{display:false}, ticks:{color:'#aaffff', font:{weight:'600'}} },
-            y: { beginAtZero:true, ticks:{color:'#ff7f7f', font:{weight:'600'}}, title:{display:true,text:'Fraud Cases',color:'#ff4d4d',font:{weight:'700'}}, grid:{color:'rgba(255,0,0,0.1)'} }
+            x: {
+              title: {display:true,text:'Hour (0-23)', color:'#7effff', font:{weight:'700'}},
+              grid:{display:false},
+              ticks:{color:'#aaffff', font:{weight:'600'}}
+            },
+            y: {
+              beginAtZero:true,
+              ticks:{color:'#ff7f7f', font:{weight:'600'}},
+              title:{display:true,text:'Fraud Cases',color:'#ff4d4d',font:{weight:'700'}},
+              grid:{color:'rgba(255,0,0,0.1)'}
+            }
           },
           animation: { duration: 1800, easing: 'easeOutQuart' }
         }
       });
     });
 
-    // Load Line chart (dummy data example)
+    // Line chart: Daily usage
     fetch('/api/line').then(res => res.json()).then(data => {
       new Chart(document.getElementById('lineChart'), {
         type: 'line',
@@ -387,30 +393,70 @@
       });
     });
 
-    // Load table data
+    // Load last 10 predictions in table
     fetch('/api/table').then(res => res.json()).then(data => {
       const tbody = document.querySelector('#predTable tbody');
       tbody.innerHTML = '';
       data.records.forEach(row => {
         const tr = document.createElement('tr');
-        row.forEach((cell, i) => {
-          const td = document.createElement('td');
-          if (i === 2) { // Result cell
-            td.textContent = cell === 'Fraud' ? '🚨 Fraud' : '✅ Legitimate';
-            td.classList.add(cell === 'Fraud' ? 'result-fraud' : 'result-legit');
-          } else if (i === 0) { // Amount formatting
-            td.textContent = '₹' + parseFloat(cell).toLocaleString(undefined, { minimumFractionDigits: 2 });
-            td.style.fontFamily = 'monospace';
-          } else if (i === 1) {
-            td.textContent = cell + ':00';
-          } else {
-            td.textContent = cell;
-          }
-          tr.appendChild(td);
-        });
+
+        // row data indices:
+        // 0: upi_id (ignored here)
+        // 1: utr (ignored here)
+        // 2: amount
+        // 3: hour
+        // 4: result
+        // 5: timestamp
+
+        // Show only Amount, Hour, Result, Timestamp columns as per table headers:
+        // Amount (row[2])
+        // Hour (row)
+        // Result (row)
+        // Timestamp (row)
+
+        let amount = row;
+        let hour = row;
+        let result = row;
+        let timestamp = row;
+
+        // Amount cell
+        const tdAmount = document.createElement('td');
+        if (!isNaN(amount) && amount !== null && amount !== "") {
+          tdAmount.textContent = '₹' + parseFloat(amount).toLocaleString(undefined, { minimumFractionDigits: 2 });
+        } else {
+          tdAmount.textContent = '—';
+        }
+        tdAmount.style.fontFamily = 'monospace';
+        tr.appendChild(tdAmount);
+
+        // Hour cell
+        const tdHour = document.createElement('td');
+        const hourNum = Number(hour);
+        tdHour.textContent = (hourNum >= 0 && hourNum <= 23) ? hourNum + ':00' : '—';
+        tr.appendChild(tdHour);
+
+        // Result cell
+        const tdResult = document.createElement('td');
+        if (result === 'Fraud') {
+          tdResult.textContent = '🚨 Fraud';
+          tdResult.classList.add('result-fraud');
+        } else if (result === 'Legitimate') {
+          tdResult.textContent = '✅ Legitimate';
+          tdResult.classList.add('result-legit');
+        } else {
+          tdResult.textContent = result;
+        }
+        tr.appendChild(tdResult);
+
+        // Timestamp cell
+        const tdTimestamp = document.createElement('td');
+        tdTimestamp.textContent = timestamp || '—';
+        tr.appendChild(tdTimestamp);
+
         tr.style.opacity = 0;
         tbody.appendChild(tr);
       });
+
       Array.from(tbody.children).forEach((row, idx) => {
         setTimeout(() => {
           row.style.transition = 'opacity 0.7s ease';
@@ -419,7 +465,8 @@
       });
     });
   </script>
-<div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.4); color: #aaa;">
+
+  <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.4); color: #aaa;">
     © 2025 Trustify | Developed by Team Trustify
   </div>
 </body>
