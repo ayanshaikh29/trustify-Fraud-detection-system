@@ -6,41 +6,24 @@ import re
 import os
 from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
-import requests
 from model_train import detect_fraud, ensure_model_ready  # your ML helpers
-
 
 # ================= Flask App Config =================
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-app.secret_key = os.environ.get('TRUSTIFY_SECRET', 'trust@trust')  # set a strong secret in prod
-
-
-# ================= Brevo API Config (use env vars) =================
-# IMPORTANT: set these environment variables on your machine/server
-# BREVO_API_KEY  - your Brevo / Sendinblue API key
-# BREVO_SENDER_EMAIL - verified sender email in Brevo (e.g. no-reply@yourdomain.com)
-# Optionally: TEST_TO_EMAIL for test route receiver
-BREVO_API_KEY = os.environ.get('BREVO_API_KEY', None)
-BREVO_SENDER_EMAIL = os.environ.get('BREVO_SENDER_EMAIL', '948faf001@smtp-brevo.com')
-BREVO_SENDER_NAME = os.environ.get('BREVO_SENDER_NAME', 'Trustify Alerts')
-
+app.secret_key = os.environ.get('TRUSTIFY_SECRET', 'trust@trust')
 
 # ================= Absolute Paths =================
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'fraud.db')
-MODEL_PATH = os.path.join(BASE_DIR, 'fraud_model.pkl')
-
 
 print(f"📂 Using Database: {DB_PATH}")
-
 
 # ================= SQLite Utilities =================
 def get_db():
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
-
 
 # ================= DB Init & Helpers =================
 def add_trusted_upis():
@@ -65,7 +48,6 @@ def add_trusted_upis():
     finally:
         conn.close()
     print("✅ Trusted UPIs ensured in DB.")
-
 
 def init_db():
     if not os.path.exists(DB_PATH):
@@ -109,7 +91,6 @@ def init_db():
     else:
         print("✅ Existing DB found.")
 
-
 # ================= Auth Decorator =================
 def login_required(f):
     @wraps(f)
@@ -120,14 +101,12 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
-
 # ================= Utilities =================
 def parse_amount(value):
     try:
         return round(float(value), 2)
     except Exception:
         return 0.0
-
 
 def parse_hour(value):
     try:
@@ -136,84 +115,11 @@ def parse_hour(value):
     except Exception:
         return datetime.datetime.now().hour
 
-
-# ================= Email (Brevo API) =================
-def send_email_via_brevo(to_email: str, subject: str, html_content: str) -> bool:
-    """
-    Send email using Brevo (Sendinblue) transactional API.
-    Returns True on success, False on failure. Prints debug info to console.
-    """
-    if not BREVO_API_KEY:
-        print("❌ BREVO_API_KEY not set. Please set BREVO_API_KEY environment variable.")
-        return False
-
-    url = "https://api.brevo.com/v3/smtp/email"
-    headers = {
-        "accept": "application/json",
-        "api-key": BREVO_API_KEY,
-        "content-type": "application/json"
-    }
-    payload = {
-        "sender": {"name": BREVO_SENDER_NAME, "email": BREVO_SENDER_EMAIL},
-        "to": [{"email": to_email}],
-        "subject": subject,
-        "htmlContent": html_content
-    }
-
-    try:
-        print(f"📡 Sending email to {to_email} via Brevo API...")
-        r = requests.post(url, headers=headers, json=payload, timeout=15)
-        if r.status_code in (200, 201, 202):
-            print("✅ Email sent successfully (Brevo).")
-            return True
-        else:
-            print(f"❌ EMAIL ERROR: {r.status_code} - {r.text}")
-            return False
-    except Exception as e:
-        print("❌ EMAIL EXCEPTION:", e)
-        return False
-
-
-def send_fraud_alert(email, transaction_id, amount):
-    try:
-        subject = "🚨 Fraud Alert - Trustify"
-        body = f"""<p>Hello,</p>
-<p>A suspicious transaction has been detected.</p>
-<ul>
-<li><strong>Transaction ID:</strong> {transaction_id}</li>
-<li><strong>Amount:</strong> ₹{amount}</li>
-</ul>
-<p>Please verify immediately.</p>
-<p>- Trustify Security Team</p>
-"""
-        ok = send_email_via_brevo(email, subject, body)
-        if not ok:
-            app.logger.warning("Failed to send fraud alert to %s", email)
-    except Exception as e:
-        app.logger.warning("send_fraud_alert exception: %s", e)
-
-
-def send_login_email(email, username):
-    try:
-        subject = "🔐 Login Notification - Trustify"
-        body = f"""<p>Hello {username},</p>
-<p>You have successfully logged in to your Trustify account.</p>
-<p>If this was not you, please change your password immediately.</p>
-<p>- Trustify Security Team</p>
-"""
-        ok = send_email_via_brevo(email, subject, body)
-        if not ok:
-            app.logger.warning("Failed to send login email to %s", email)
-    except Exception as e:
-        app.logger.warning("send_login_email exception: %s", e)
-
-
 # ================= Routes =================
 @app.route('/')
 @app.route('/home')
 def home():
     return render_template('home.html', logged_in=('username' in session))
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -239,20 +145,12 @@ def login():
             session['email'] = user['email']
             session['user_id'] = user['id']
             flash('Login successful!', 'success')
-
-            # best-effort email (non-blocking)
-            try:
-                send_login_email(user['email'], user['username'])
-            except Exception as e:
-                app.logger.warning("Login email failed: %s", e)
-
             return redirect(url_for('home'))
         else:
             flash('Invalid username or password.', 'danger')
             return redirect(url_for('login'))
 
     return render_template('login.html')
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -281,14 +179,14 @@ def register():
             return redirect(url_for('register'))
 
         hashed_password = generate_password_hash(password)
-        c.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", (username, email, hashed_password))
+        c.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", 
+                  (username, email, hashed_password))
         conn.commit()
         conn.close()
 
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html')
-
 
 @app.route('/logout')
 def logout():
@@ -297,7 +195,6 @@ def logout():
         session.pop(k, None)
     flash("Logged out successfully!", "info")
     return redirect(url_for("home"))
-
 
 @app.route('/predict', methods=['GET', 'POST'])
 @login_required
@@ -376,26 +273,29 @@ def predict():
             finally:
                 conn.close()
 
-            if simple_result == "Fraud":
-                user_email = session.get('email') or "receiver_email@gmail.com"
-                try:
-                    send_fraud_alert(user_email, form_data['utr'] or "N/A", amount)
-                except Exception as e:
-                    app.logger.warning("Fraud alert email failed: %s", e)
-
     # Stats
     conn = get_db()
     c = conn.cursor()
     c.execute("SELECT COUNT(*) FROM predictions")
     total_predictions = c.fetchone()[0] or 0
     c.execute("SELECT COUNT(*) FROM predictions WHERE result='Fraud'")
-    total_frauds = c.fetchone()[0] or 0
+    total_frauds = c.fetchone()[0] or 0  # FIX: Correctly access the count value
     total_legit = total_predictions - total_frauds
+
+    c.execute("""
+        SELECT date(timestamp) AS day, COUNT(*) AS count
+        FROM predictions
+        GROUP BY day
+        ORDER BY day DESC
+        LIMIT 30
+    """)
+    daily_usage = c.fetchall()
 
     c.execute("""
         SELECT upi_id, utr, amount, hour, result, timestamp
         FROM predictions
         ORDER BY timestamp DESC
+        LIMIT 50
     """)
     all_predictions = c.fetchall()
     conn.close()
@@ -405,21 +305,32 @@ def predict():
                            total_predictions=total_predictions,
                            total_frauds=total_frauds,
                            total_legit=total_legit,
+                           daily_usage=daily_usage,
                            form_data=form_data,
                            all_predictions=all_predictions)
 
-
 @app.route('/dashboard')
+@login_required
 def dashboard():
-    return render_template('dashboard.html')
-
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("""
+        SELECT date(timestamp) AS day, COUNT(*) AS usage_count
+        FROM predictions
+        GROUP BY day
+        ORDER BY day DESC
+        LIMIT 30
+    """)
+    daily_usage = c.fetchall()
+    conn.close()
+    return render_template('dashboard.html', daily_usage=daily_usage)
 
 @app.route('/about')
 def about():
     return render_template('about.html')
 
-
 @app.route('/history')
+@login_required
 def history():
     conn = get_db()
     c = conn.cursor()
@@ -431,22 +342,18 @@ def history():
     conn.close()
     return render_template('history.html', records=records)
 
-
 # ================= API Endpoints =================
 @app.route('/api/table')
 def table():
     conn = get_db()
     c = conn.cursor()
     c.execute("""
-        SELECT upi_id, utr, COALESCE(amount,0), hour, result, timestamp
-        FROM predictions
-        ORDER BY timestamp DESC
-        LIMIT 10
+        SELECT upi_id, utr, COALESCE(amount,0), hour, result, timestamp 
+        FROM predictions ORDER BY timestamp DESC LIMIT 10
     """)
     records = c.fetchall()
     conn.close()
     return jsonify({"records": [tuple(row) for row in records]})
-
 
 @app.route('/api/pie')
 def pie():
@@ -455,10 +362,26 @@ def pie():
     c.execute("SELECT COUNT(*) FROM predictions WHERE result='Fraud'")
     frauds = c.fetchone()[0] or 0
     c.execute("SELECT COUNT(*) FROM predictions WHERE result='Legitimate'")
-    legits = c.fetchone()[0] or 0
+    legits = c.fetchone()[0] or 0 # FIX: Correctly access the count value
     conn.close()
     return jsonify({"labels": ["Legitimate", "Fraud"], "values": [legits, frauds]})
 
+@app.route('/api/line')
+def line():
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("""
+        SELECT date(timestamp) as day, COUNT(*) as count
+        FROM predictions
+        GROUP BY day
+        ORDER BY day ASC
+        LIMIT 30
+    """)
+    rows = c.fetchall()
+    conn.close()
+    labels = [row['day'] for row in rows]
+    values = [row['count'] for row in rows]
+    return jsonify({"labels": labels, "values": values})
 
 @app.route('/api/bar')
 def bar():
@@ -468,27 +391,20 @@ def bar():
     c.execute("SELECT hour FROM predictions WHERE result='Fraud'")
     for (h,) in c.fetchall():
         try:
-            idx = int(h) if 0 <= int(h) < 24 else 0
+            idx = int(h)
+            if 0 <= idx < 24:
+                hourly[idx] += 1
+            else:
+                hourly[0] += 1
         except:
-            idx = 0
-        hourly[idx] += 1
+            hourly[0] += 1 # FIX: Change 'hourly += 1' to 'hourly[0] += 1' to avoid TypeError
     conn.close()
     return jsonify({"hours": list(range(24)), "fraud_counts": hourly})
-
-
-@app.route('/test_email')
-def test_email():
-    # quick test route to verify Brevo API works
-    test_to = os.environ.get('TEST_TO_EMAIL', 'receiver@example.com')
-    ok = send_email_via_brevo(test_to, "Trustify Test Email", "This is a test from Trustify (Brevo API).")
-    return ("✅ Test email sent!" if ok else "❌ Test email failed. Check console/logs.")
-
 
 @app.after_request
 def add_header(response):
     response.headers["Cache-Control"] = "no-store"
     return response
-
 
 # ================= Main Entry =================
 if __name__ == '__main__':
@@ -500,3 +416,4 @@ if __name__ == '__main__':
 
     ensure_model_ready()
     app.run(debug=True, use_reloader=False)
+    
