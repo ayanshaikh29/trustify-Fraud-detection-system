@@ -19,3 +19,66 @@ Amount,Hour,UPI_ID,Known_UPI,Location_Match,Purpose,Frequency,Fraud
 50,17,gpay@okicici,1,1,Recharge,1,0
 17500,1,unknown@upi,0,0,Lottery,2,1
 400,12,okhdfcbank@upi,1,1,Bill Payment,1,0
+2700,8,phonepe@upi,1,1,Shopping,2,0
+18000,22,unknown@upi,0,0,Donation,1,1
+350,18,amazonpay@apl,1,1,Groceries,1,0
+48000,3,unknown@upi,0,0,Lottery,1,1
+650,6,hdfcbank@upi,1,1,Recharge,1,0
+12500,21,random@upi,0,1,Reward,3,1
+90,9,gpay@okicici,1,1,Shopping,1,0
+42000,0,unknown@upi,0,0,Lottery,2,1
+700,7,axisbank@upi,1,1,Bill Payment,1,0
+300,19,phonepe@upi,1,1,Groceries,1,0
+15500,2,unknown@upi,0,0,Donation,2,1
+80,10,ybl@upi,1,1,Recharge,1,0
+26000,23,unknown@upi,0,0,Lottery,1,1
+Amount,Hour,UPI_ID,Known_UPI,Location_Match,Purpose,Frequency,Fraud
+220,18,phonepe@upi,1,1,Groceries,1,0
+5400,7,unknown@upi,0,0,Lottery,1,1
+1300,14,axisbank@upi,1,1,Recharge,2,0
+250,10,paytm@upi,1,1,Shopping,1,0
+18500,3,unknown@upi,0,1,Donation,2,1
+300,21,hdfcbank@upi,1,0,Reward,1,0
+47000,0,unknown@upi,0,0,Lottery,1,1
+120,16,gpay@okicici,1,1,Bill Payment,1,0
+6000,22,unknown@upi,0,1,Donation,2,1
+90,9,amazonpay@upi,1,1,Recharge,1,0
+350,19,ybl@upi,1,1,Groceries,1,0
+25000,2,unknown@upi,0,0,Lottery,2,1
+150,13,phonepe@upi,1,1,Shopping,1,0
+8000,5,unknown@upi,0,1,Donation,3,1
+420,20,okaxis@upi,1,1,Reward,1,0
+9999,6,unknown@upi,0,0,Lottery,1,1
+110,15,hdfcbank@upi,1,1,Groceries,1,0
+2000,1,unknown@upi,0,1,Donation,2,1
+80,17,gpay@okhdfc,1,1,Recharge,1,0
+480,12,paytm@upi,1,1,Bill Payment,1,0
+7200,4,unknown@upi,0,0,Reward,2,1
+65,11,ybl@upi,1,1,Groceries,1,0
+39000,23,unknown@upi,0,0,Lottery,1,1
+175,8,axisbank@upi,1,1,Shopping,1,0
+600,18,unknown@upi,0,1,Reward,2,1
+95,7,amazonpay@upi,1,1,Recharge,1,0
+28000,2,unknown@upi,0,0,Donation,3,1
+125,14,phonepe@upi,1,1,Shopping,1,0
+3500,5,hdfcbank@upi,1,0,Reward,2,0
+470,19,okaxis@upi,1,1,Bill Payment,1,0
+20000,1,unknown@upi,0,0,Lottery,2,1
+90,21,gpay@okicici,1,1,Groceries,1,0
+5600,0,unknown@upi,0,1,Donation,2,1
+150,16,paytm@upi,1,1,Shopping,1,0
+80,10,axisbank@upi,1,1,Recharge,1,0
+12500,3,unknown@upi,0,0,Lottery,1,1
+410,17,hdfcbank@upi,1,1,Reward,1,0
+700,12,phonepe@upi,1,1,Bill Payment,1,0
+26000,22,unknown@upi,0,0,Donation,2,1
+95,13,ybl@upi,1,1,Groceries,1,0
+440,15,okaxis@upi,1,1,Shopping,1,0
+60000,2,unknown@upi,0,0,Lottery,3,1
+150,20,gpay@okhdfc,1,1,Recharge,1,0
+310,9,amazonpay@upi,1,1,Shopping,1,0
+200,18,paytm@upi,1,1,Bill Payment,1,0
+8500,4,unknown@upi,0,0,Reward,2,1
+130,7,axisbank@upi,1,1,Groceries,1,0
+380,11,hdfcbank@upi,1,1,Shopping,1,0
+19500,1,unknown@upi,0,1,Donation,3,1
