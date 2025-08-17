@@ -5,184 +5,185 @@
   <title>Trustify - Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    /* Reset & root colors */
     :root {
-      --primary: #00c6ff;
-      --secondary: #0072ff;
-      --success: #4dff88;
-      --danger: #ff4d4d;
-      --bg: #0f2027;
-      --glass-bg: rgba(14,30,50,0.73);
-      --hero-grad2: #243b55;
-      --hero-grad3: #274046;
+      --primary: #0f2027;
+      --secondary: #15156e;
+      --white: #fff;
+      --gray-light: #f3f4f6;
+      --input-bg: #f8fafc;
+      --input-border: #cbd5e1;
+      --btn-bg: #142d75;
+      --btn-hover: #142d75;
     }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #141e30 0%, var(--hero-grad2) 50%, var(--hero-grad3) 100%);
-      font-family: 'Segoe UI', 'Arial', sans-serif;
-      color: #f2fcfe;
+    * {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body, html {
+      height: 100%;
+      background: #12163f;
       display: flex;
-      align-items: center;
       justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-    body::before, body::after {
-      content: '';
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(60px);
-      opacity: 0.35;
-      z-index: 0;
-    }
-    body::before {
-      width: 420px;
-      height: 320px;
-      background: radial-gradient(circle at 70% 40%, var(--primary), transparent 75%);
-      left: -110px; top: 10vh;
-      animation: floatBg1 11s ease-in-out infinite alternate;
-    }
-    body::after {
-      width: 350px;
-      height: 300px;
-      background: radial-gradient(circle at 30% 60%, var(--secondary), transparent 75%);
-      right: -90px; bottom: 6vh;
-      animation: floatBg2 13s ease-in-out infinite alternate;
-    }
-    @keyframes floatBg1 {
-      0% { transform: translateY(0) scale(1); }
-      100% { transform: translateY(-20px) scale(1.1); }
-    }
-    @keyframes floatBg2 {
-      0% { transform: translateY(0) scale(0.98); }
-      100% { transform: translateY(25px) scale(1.06); }
-    }
-    .auth-container {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 340px;
-      padding: 36px 30px 30px 30px;
-      border-radius: 20px;
-      background: var(--glass-bg);
-      box-shadow: 0 8px 36px 0 rgba(0,198,255,0.20), 0 2px 8px rgba(0,0,0,0.18);
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      animation: fadeIn 1.2s cubic-bezier(.25,.8,.25,1) forwards;
-      opacity: 0;
+      overflow: hidden;
+      color: var(--primary);
     }
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: translateY(30px);}
-      100% { opacity: 1; transform: translateY(0);}
+    .container {
+      display: flex;
+      width: 900px;
+      height: 450px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--white);
     }
-    .auth-container h2 {
-      margin-top: 0;
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      text-align: center;
-      background: linear-gradient(90deg,var(--primary),var(--secondary));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 24px;
-      user-select: none;
-    }
-    form {
-      width: 100%;
+
+    /* Left side - form */
+    .login-form {
+      flex: 1;
+      background: var(--white);
+      padding: 60px 50px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      margin-bottom: 0;
+      justify-content: center;
     }
-    input, select {
-      border: none;
-      outline: none;
-      border-radius: 9px;
-      padding: 12px;
-      font-size: 1rem;
-      background: rgba(255,255,255,0.10);
-      color: #e6f4fa;
-      font-family: inherit;
-      box-shadow: 0 2px 8px 0 rgba(0,0,0,0.03) inset;
-      transition: box-shadow 0.19s, background-color 0.23s;
-    }
-    input::placeholder { color: #b4cbdf; opacity: 1;}
-    select:invalid { color: #b4cbdf;}
-    input:focus, select:focus {
-      background: rgba(0,198,255,0.09);
-      box-shadow: 0 0 0 2px var(--primary);
-    }
-    button[type="submit"] {
-      margin-top: 8px;
-      padding: 13px;
-      border-radius: 20px;
-      background: linear-gradient(90deg,var(--primary),var(--secondary));
-      border: none;
-      color: #fff;
-      font-size: 1.08rem;
+    .login-form h2 {
       font-weight: 700;
-      box-shadow: 0 3px 16px var(--primary)44;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.25s;
-      letter-spacing: 1.1px;
-      animation: pulse 3s infinite;
-    }
-    button[type="submit"]:hover,
-    button[type="submit"]:focus {
-      background: linear-gradient(90deg,var(--secondary),var(--primary));
-      transform: scale(1.04);
-      animation: none;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1);}
-      50% { transform: scale(1.03);}
-    }
-    .switch-text {
-      color: #b8eefe;
-      text-align: center;
-      font-size: .97rem;
-      margin: 20px 0 0 0;
-      font-weight: 500;
+      font-size: 28px;
+      margin-bottom: 40px;
+      color: var(--primary);
       user-select: none;
     }
-    .switch-text a {
-      color: var(--primary);
-      cursor: pointer;
-      text-decoration: underline;
-      font-weight: 600;
-      margin-left: 2px;
-      transition: color 0.2s;
+    .login-form input, .login-form select {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border: 1.8px solid var(--input-border);
+      border-radius: 6px;
+      font-size: 16px;
+      color: #333;
+      background: var(--input-bg);
+      transition: border-color 0.3s;
     }
-    .switch-text a:hover { color: var(--success);}
-    @media (max-width:600px) {
-      .auth-container { padding: 28px 8vw; max-width: 96vw;}
-      h2 { font-size: 1.35rem; }
+    .login-form input::placeholder {
+      color: #a0aec0;
+    }
+    .login-form input:focus, .login-form select:focus {
+      border-color: var(--primary);
+      outline: none;
+      background: #f0f4ff;
+    }
+    .login-form select {
+      cursor: pointer;
+    }
+    .login-form button {
+      width: 100%;
+      background: var(--btn-bg);
+      border: none;
+      color: var(--white);
+      padding: 15px;
+      border-radius: 25px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.3s;
+      box-shadow: 0 4px 10px rgba(31, 64, 164, 0.5);
+      user-select: none;
+    }
+    .login-form button:hover {
+      background: var(--btn-hover);
+    }
+    .login-form .forgot {
+      font-size: 14px;
+      color: var(--primary);
+      text-align: right;
+      margin-bottom: 25px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .login-form .forgot:hover {
+      text-decoration: underline;
+    }
+    .login-form .signup-text {
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      user-select: none;
+    }
+    .login-form .signup-text a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      margin-left: 5px;
+    }
+    .login-form .signup-text a:hover {
+      text-decoration: underline;
+    }
+
+    /* Right side - welcome */
+    .welcome-panel {
+      flex: 1;
+      background: linear-gradient(135deg, #0c1b80, #0f2027);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0 40px;
+      user-select: none;
+    }
+    .welcome-panel h1 {
+      font-size: 48px;
+      font-weight: 900;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+    .welcome-panel p {
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        height: auto;
+        width: 90vw;
+        border-radius: 12px;
+      }
+      .welcome-panel {
+        padding: 40px 20px;
+        order: -1;
+        border-radius: 12px 12px 0 0;
+      }
+      .login-form {
+        padding: 40px 20px;
+        border-radius: 0 0 12px 12px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="auth-container">
-    <h2>Login</h2>
-    <form id="login-form" method="POST" action="{{ url_for('login') }}">
-      <input type="text" placeholder="Username" name="username" required />
-      <input type="password" placeholder="Password" name="password" required />
-      <select name="role" required>
-        <option value="" disabled selected>Select Role</option>
-        <option>User</option>
-        <option>Admin</option>
-      </select>
-      <button type="submit" name="action" value="login">Login</button>
-    </form>
-    <div class="switch-text">Don't have an account?
-      <a href="{{ url_for('register') }}">Register</a>
+  <div class="container">
+    <div class="login-form">
+      <h2>Log in</h2>
+      <form method="POST" action="{{ url_for('login') }}">
+        <input type="text" name="username" placeholder="user name" required autocomplete="username" />
+        <input type="password" name="password" placeholder="password" required autocomplete="current-password" />
+        <div class="forgot" onclick="alert('Redirect to password reset page')">Forgot your <a href="#" style="color:#1f40a4;">password?</a></div>
+        <button type="submit">Log in</button>
+      </form>
+      <div class="signup-text">
+        Don't have any account? <a href="{{ url_for('register') }}">Sign Up</a>
+      </div>
+    </div>
+    <div class="welcome-panel">
+      <h1>WELCOME !</h1>
+      <p>Log in to continue</p>
     </div>
   </div>
-  <script>
-    // Animate container on load
-    window.onload = function() {
-      document.querySelector('.auth-container').style.opacity = 1;
-    };
-  </script>
 </body>
 </html>
