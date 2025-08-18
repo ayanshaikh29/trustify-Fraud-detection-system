@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 import sqlite3
 import datetime
@@ -156,10 +155,12 @@ def login():
 def register():
     if 'username' in session:
         return redirect(url_for('home'))
+
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '').strip()
+
         if not username or not email or not password:
             flash('Please fill out all fields.', 'danger')
             return redirect(url_for('register'))
@@ -186,6 +187,7 @@ def register():
 
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('login'))
+
     return render_template('register.html')
 
 @app.route('/logout')
@@ -276,10 +278,12 @@ def predict():
     # Stats
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM predictions")
-    total_predictions = c.fetchone()[0] or 0
-    c.execute("SELECT COUNT(*) FROM predictions WHERE result='Fraud'")
-    total_frauds = c.fetchone()[0] or 0  # FIX: Correctly access the count value
+    c.execute("SELECT COUNT(*) as cnt FROM predictions")
+    total_predictions = int(c.fetchone()["cnt"] or 0)
+
+    c.execute("SELECT COUNT(*) as cnt FROM predictions WHERE result='Fraud'")
+    total_frauds = int(c.fetchone()["cnt"] or 0)
+
     total_legit = total_predictions - total_frauds
 
     c.execute("""
@@ -309,6 +313,7 @@ def predict():
                            form_data=form_data,
                            all_predictions=all_predictions)
 
+# ================= Dashboard & Other Pages =================
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -359,10 +364,10 @@ def table():
 def pie():
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM predictions WHERE result='Fraud'")
-    frauds = c.fetchone()[0] or 0
-    c.execute("SELECT COUNT(*) FROM predictions WHERE result='Legitimate'")
-    legits = c.fetchone()[0] or 0 # FIX: Correctly access the count value
+    c.execute("SELECT COUNT(*) as cnt FROM predictions WHERE result='Fraud'")
+    frauds = int(c.fetchone()["cnt"] or 0)
+    c.execute("SELECT COUNT(*) as cnt FROM predictions WHERE result='Legitimate'")
+    legits = int(c.fetchone()["cnt"] or 0)
     conn.close()
     return jsonify({"labels": ["Legitimate", "Fraud"], "values": [legits, frauds]})
 
@@ -397,7 +402,7 @@ def bar():
             else:
                 hourly[0] += 1
         except:
-            hourly[0] += 1 # FIX: Change 'hourly += 1' to 'hourly[0] += 1' to avoid TypeError
+            hourly[0] += 1
     conn.close()
     return jsonify({"hours": list(range(24)), "fraud_counts": hourly})
 
@@ -416,4 +421,3 @@ if __name__ == '__main__':
 
     ensure_model_ready()
     app.run(debug=True, use_reloader=False)
-    
