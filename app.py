@@ -199,7 +199,6 @@ def logout():
     return redirect(url_for("home"))
 
 @app.route('/predict', methods=['GET', 'POST'])
-@login_required
 def predict():
     result = None
     form_data = {
@@ -315,7 +314,6 @@ def predict():
 
 # ================= Dashboard & Other Pages =================
 @app.route('/dashboard')
-@login_required
 def dashboard():
     conn = get_db()
     c = conn.cursor()
@@ -335,7 +333,6 @@ def about():
     return render_template('about.html')
 
 @app.route('/history')
-@login_required
 def history():
     conn = get_db()
     c = conn.cursor()
